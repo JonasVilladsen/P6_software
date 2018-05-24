@@ -17,8 +17,8 @@ import numba
 # Evaluating score function
 # ============================================================================
 #@profile
-def _mu_res(t_idx0,t_idx1,SPP_arr,WS_arr,WD_arr,alpha,beta,gamma,delta,\
-                d_fc = d_time(1)):
+def _mu_res(t_idx0, t_idx1, SPP_arr, WS_arr, WD_arr, alpha, beta, gamma,
+            delta, d_fc = d_time(1)):
     """ 
     Parameters
     ----------
@@ -28,23 +28,19 @@ def _mu_res(t_idx0,t_idx1,SPP_arr,WS_arr,WD_arr,alpha,beta,gamma,delta,\
     t_idx1 : int
         index in the forecast matrix (row wise)
     SPP_arr : numpy.ndarray
-        SPP data for one or more muncipalities where the radiation model have 
+        SPP data for one or more municipalities where the radiation model have 
         been substracted
     WS_arr : numpy.ndarray
-        Wind speed data for one or more mincipalitees where model have been 
+        Wind speed data for one or more municipalities where model have been 
         substracted
     WD_arr : numpy.ndarray
-        Wind direction data for one or more mincipalitees where model have been 
-        substracted
-    alpha,beta,gamma,delta : numpy.nddarray
+        Wind direction data for one or more municipalities where model
+        have been substracted
+    alpha, beta, gamma, delta : numpy.nddarray
         parameters for spp/ws, sin(WS), cos(ws)
     
     d_fc : datetime.time, optional
-        The 
     """
-#    if lag%4 != 0:
-#        raise(NotImplementedError("Currently we can only predict with whole \
-#                                  hour lags due to the fc resulution"))
     
     #get dimentions of different matriceis
     spp_k_max = alpha.shape[0] 
@@ -61,13 +57,13 @@ def _mu_res(t_idx0,t_idx1,SPP_arr,WS_arr,WD_arr,alpha,beta,gamma,delta,\
     spp_t_lag_max = t_idx0 - (spp_k_max - 1) - lag
     lag_fc = 0 #OBS: we know forecast well in advance so we dont have to add
     #lag to this set lag_fc = lag if we want lag back
-    ws_t_lag_max = t_idx1 - 4*(ws_k_max - 1) - lag_fc # 4 for quarters in an hour
+    ws_t_lag_max = t_idx1 - 4*(ws_k_max - 1) - lag_fc # 4 for quarters in hour
     sinwd_t_lag_max = t_idx1 - 4*(sinwd_k_max - 1) - lag_fc
     coswd_t_lag_max = t_idx1 - 4*(coswd_k_max - 1) - lag_fc
     
     
     #These are the indicies for the minimum lag. It corresponds to the lag
-    #in the model. 1 is subtracted because of pythons way of indexing. 
+    #in the model. 1 is subtracted because of Pythons way of indexing. 
     spp_t_lag_min = t_idx0 - (lag - 1)
     fc_t_lag_min =  t_idx1 - (lag_fc - 1) #will give the index +1
     spp_slice = SPP_arr[spp_t_lag_max:spp_t_lag_min]
@@ -76,18 +72,14 @@ def _mu_res(t_idx0,t_idx1,SPP_arr,WS_arr,WD_arr,alpha,beta,gamma,delta,\
     sinwd_slice = WD_arr[sinwd_t_lag_max:fc_t_lag_min][::4]
     coswd_slice = WD_arr[coswd_t_lag_max:fc_t_lag_min][::4]
     
-    mu_r = fast_sum((spp_slice,ws_slice, sinwd_slice,coswd_slice),\
-                    (alpha,beta,gamma,delta))
-#    mu_r = 0
-#    mu_r += np.sum(spp_slice*alpha)
-#    mu_r += np.sum(ws_slice*beta)
-#    mu_r += np.sum(np.sin(sinwd_slice)*gamma)
-#    mu_r += np.sum(np.cos(coswd_slice)*delta)
+    mu_r = fast_sum((spp_slice, ws_slice, sinwd_slice, coswd_slice),\
+                    (alpha, beta, gamma, delta))
     return(mu_r)
 
 vec_full_mu_res = np.vectorize(_mu_res,\
-                               excluded=['SPP_arr','WS_arr','WD_arr','alpha', \
-                                         'beta','gamma','delta','d_fc'])
+                               excluded=['SPP_arr', 'WS_arr', 'WD_arr', \
+                                         'alpha', 'beta', 'gamma', 'delta', \
+                                         'd_fc'])
 
 @numba.jit
 def fast_sum(slices,coefs):
@@ -102,7 +94,7 @@ def fast_sum(slices,coefs):
 
 def spatio_mod_res(rng,SPP_res,WS_res,WD_res,coef_arr,d_fc = d_time(1)):    
     """
-    Calculates spatio temporal model for when time is for range rng currently 
+    Calculates spatio-temporal model for when time is for range rng currently 
     predicted an hour ahead. 
     OBS: remember to do simulation mode at some point
     
@@ -119,15 +111,13 @@ def spatio_mod_res(rng,SPP_res,WS_res,WD_res,coef_arr,d_fc = d_time(1)):
         mu_res[i] = _mu_res(t_idx0[i],t_idx1[i],SPP_res.values,\
               WS_res.values,WD_res.values, alpha,beta,gamma,delta,\
               d_fc)
-    #incomment later
-    #mu_res = vec_full_mu_res(t_idx0,t_idx1,SPP_res.values,WS_res.values,\
-#                         WD_res.values, alpha,beta,gamma,delta)
+
     return(mu_res)
 
 def spatio_mod(rng,mu_r,rad_mod):    
     """
-    Combines radiation model with the spatio temporal model and zeroes
-    where necessary. write more documentation here
+    Combines radiation model with the spatio-temporal model and zeroes
+    where necessary.
     """    
     #import min/max hours for model
     root = return_to_root()

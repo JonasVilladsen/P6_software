@@ -25,7 +25,8 @@ class SPP:
         D_freq is dayly frequency
     
     """
-    def __init__(self,SPPinfo,muninames,instp = None,h_freq = "15min",D_freq = "D"):
+    def __init__(self, SPPinfo, muninames, instp = None,
+                 h_freq = "15min", D_freq = "D"):
         self.SPP = SPPinfo
         self.timerange = SPPinfo.index
         self.muninr = SPPinfo.columns
@@ -56,20 +57,34 @@ class SPP:
 def import_SPP(t_start,t_end,muni_list = "all",hours = "all",\
                sub_h_freq = "all",sub_D_freq = 'all'):
     """
-    Import serveral SPP files into a continius information with information every 15 minutes possibly with some hours takend out. Imports into the SPP class. 
+    Import serveral SPP files into a continius information with information
+    every 15 minutes possibly with some hours takend out.
+    Imports into the SPP class. 
     
     Input:
-         root: root to main svn folder with "\\" in the end. This will vary depending from where you run your script.
-         t_start/t_end: Start/end time for your forecast as pandas timestamp. Select this value between 2017/01/01  and 2017/12/31. Only whole dates are allowed, no hours or minutes can be speficied. 
+         root: root to main svn folder with "\\" in the end. This will vary
+         depending from where you run your script.
+         t_start/t_end: Start/end time for your forecast as pandas timestamp.
+         Select this value between 2017/01/01 and 2017/12/31.
+         Only whole dates are allowed, no hours or minutes can be speficied. 
          
 
     Optional input:
-        munilist: Speficify which muncipilaties you want date from using the municipilaty numbers. If left it will import data from all munipicilaties, else give a list/tuple/numpy array with the numbers.
-        hours: Spefify which hours of the day you want to import. Example: hours = ("12:00","18:45") will give you the SPP in that timerange for the specified days. Should be a list/tuple wiht elements of type "hh,mm" as strings
-        sub_h_freq (Subsample hours frequency): Define how to subsample on an hourly basis. E.g. sub_h_freq = "2H" will return SPP for every 2 hours. 24 should be devisible by this value
-        sub_D_freq (Subsample days frequency): Define how to subsample on an dayly basis. E.g. sub_D_freq = "5D" will return SPP for every 5 days.
+        munilist: Speficify which muncipilaties you want date from using the
+        municipilaty numbers. If left it will import data from all munipicilaties,
+        else give a list/tuple/numpy array with the numbers.
+        hours: Spefify which hours of the day you want to import.
+        Example: hours = ("12:00","18:45") will give you the SPP in that
+        timerange for the specified days. Should be a list/tuple with elements
+        of type "hh,mm" as strings
+        sub_h_freq (Subsample hours frequency): Define how to subsample on an
+        hourly basis. E.g. sub_h_freq = "2H" will return SPP for every 2 hours.
+        24 should be divisible by this value
+        sub_D_freq (Subsample days frequency): Define how to subsample
+        on a daily basis. E.g. sub_D_freq = "5D" will return SPP for every 5 days.
 
-    Returns: SPP and instaled effect from speficied timerange as a SPP object. See ?SPP for more info 
+    Returns: SPP and instaled effect from speficied timerange as a SPP object.
+    See ?SPP for more info 
     
     Examples:
     #Initialise timestamp with arguments specified. 
@@ -115,7 +130,9 @@ def import_SPP(t_start,t_end,muni_list = "all",hours = "all",\
     >>>
     >>> SPP covers 98 municipilaties
     
-    #Chose which municipilaties you want to import data from with the muni_list argument. Lets try with Aalborg, Hjørring and Jammerbugt municipilaty which have the numbers 849,851 and 860
+    #Chose which municipilaties you want to import data from with the
+    muni_list argument. Let's try with Aalborg, Hjørring and Jammerbugt
+    municipilaty which have the numbers 849, 851 and 860.
     muni_list = [849,851,860]
     sp_imp = import_SPP(root,t0,t1,munilist = munilist); print(sp_imp)
     >>> SPP for the dates:
@@ -143,7 +160,9 @@ def import_SPP(t_start,t_end,muni_list = "all",hours = "all",\
         raise(ValueError("Select a daterange within 2017"))
     
     if t_start.time() != d_time(0,0) or t_end.time() != d_time(0,0):
-        raise(ValueError("t_start and t_end should be whole dates only i.e hours = 0 and minutes = 0. \nUse the hours argument to get less hours on a day"))
+        raise(ValueError("t_start and t_end should be whole dates only, \n"
+                         "i.e hours = 0 and minutes = 0. \n"
+                         "Use the hours argument to get less hours on a day"))
             
     if not isinstance(hours,(str,list,tuple,np.ndarray)):
         raise(TypeError("hours should be string, list typle or numpy array"))
@@ -204,8 +223,8 @@ def import_SPP(t_start,t_end,muni_list = "all",hours = "all",\
     
     rng = rng[rng.indexer_between_time(hours[0],hours[1])]    
     spd = int(len(rng)/len(day_rng)) #samples pr. day
-    s_day0 = 4*rng[0].hour + int(rng[0].minute/15) #how many samples skibbed at beginning of day. Stupid formula but it works
-    s_day1 = -(4*(24 - rng[-1].hour) - 1  - int(rng[-1].minute/15)) #how many samples skibbed at end of day. Also kinda stupid
+    s_day0 = 4*rng[0].hour + int(rng[0].minute/15)
+    s_day1 = -(4*(24 - rng[-1].hour) - 1  - int(rng[-1].minute/15))
     
     #Avoid empty matrix when indexing
     if s_day0 == 0: 

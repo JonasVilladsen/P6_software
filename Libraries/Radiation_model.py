@@ -9,8 +9,6 @@ Created on Sun Mar 25 14:11:39 2018
 import numpy as np
 import pandas as pd
 import os
-import sys
-import datetime
 import import_SPP as sp
 import import_forecast as fc
 from utilities import return_to_root
@@ -20,10 +18,8 @@ os.chdir(root + stem_path)
 stem_data = pd.read_excel('Kommune_GridNr.xlsx',header = 0).set_index('Kommune_Nr')
 Kommune_List = list(pd.read_excel('Kommune_GridNr.xlsx',header = 0)['Kommune_Nr'])
 
-
 class RadiationModel:
-    def __init__(self,fc_obj,norm = False,TimeResolution = '15min',\
-                 minutes = (0,0)):
+    def __init__(self, fc_obj,norm=False, TimeResolution='15min', minutes=(0,0)):
         """
         RadiationModel() returns a DataFrame of which the size depends on the input,
         the time resolution for the output is standard a quarter resolution but can
@@ -44,7 +40,8 @@ class RadiationModel:
         self.MList = np.array(pd.read_excel('Kommune_GridNr.xlsx',header = 0)['Kommune_Nr'])
         os.chdir(root + coef_path)
         self.beta = np.load('red_model_beta.npy')
-        self.kept_beta_index = np.load('red_model_info.npy')[5:]-5 # -5 because the first 5 coefs aren't for municipalities
+        self.kept_beta_index = np.load('red_model_info.npy')[5:]-5
+        # -5 because the first 5 coefs aren't for municipalities
         self.GHI = fc_obj.GHI*10**(-3) # Skalers til MW
         self.KNr = fc_obj.muninr
         self.norm = norm
@@ -117,6 +114,3 @@ class RadiationModel:
             return self.TimeScale(model)
         else:
             return self.Scale(self.TimeScale(model))
-        
-
-

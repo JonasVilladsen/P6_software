@@ -208,8 +208,4 @@ def R2(y,yhat):
     denominator = np.linalg.norm(y - yhat)**2  
     y_null = np.linalg.norm(y - yavg)**2
     R2 =  1 - denominator/y_null
-#    ybar = np.sum(y)/N       # or sum(y)/len(y)
-#    ssreg = np.sum((yhat-ybar)**2)   # or sum([ (yihat - ybar)**2 for yihat in yhat])
-#    sstot = np.sum((y - ybar)**2)    # or sum([ (yi - ybar)**2 for yi in y])
-#    R2 = ssreg / sstot
     return(R2)

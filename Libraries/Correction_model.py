@@ -17,7 +17,6 @@ import pandas as pd
 from numba import jit
 
 class ARX:
-#    @profile
     def __init__(self, date, muni_list, PredictFrom='11hour', na=1, nb=1,
                  Lambda=0.995, PredictAhead='60min', TimeResolution='15min',
                  WinLen='15day', return_mode=False):
@@ -55,9 +54,12 @@ class ARX:
         self.PredictAhead = PredictAhead
         self.TimeResolution  = TimeResolution
         
-        myfc = fc.import_muni_forecast(self.first_data_date,self.end,muni_list = self.muni_list)
+        myfc = fc.import_muni_forecast(self.first_data_date, self.end,
+                                       muni_list = self.muni_list)
         
-        myfc_obj_simu = fc.import_muni_forecast_simu(self.first_data_date,self.end, muni_list = self.muni_list)
+        myfc_obj_simu = fc.import_muni_forecast_simu(self.first_data_date,
+                                                     self.end,
+                                                     muni_list=self.muni_list)
         
         myfc_simu = myfc_obj_simu(self.PredictFrom)
         
@@ -70,15 +72,14 @@ class ARX:
         
         self.index_set = self.RadModel_fc.index.intersection(self.RadModel_simu.index)
         self.RadModel_fc.loc[self.index_set] = self.RadModel_simu.loc[self.index_set]
-
         
-
         self.RadModel = self.RadModel_fc
         
         self.SPP = sp.import_SPP(self.first_data_date,self.end,
                                  muni_list = self.muni_list).SPP
                                 
-        self.SPP_res = pd.DataFrame(self.SPP.values[:len(self.RadModel.values)] - self.RadModel.values,\
+        self.SPP_res = pd.DataFrame(self.SPP.values[:len(self.RadModel.values)]
+                                    - self.RadModel.values,\
                   index  = self.SPP.index[:-3],columns = self.SPP.columns)
         self.PredictNrQuaters = int(int(re.findall(r'\d+',
                                                    self.PredictAhead)[0])/15)
@@ -119,14 +120,12 @@ class ARX:
         if self.return_mode == False:
             return self.zeros(Y_forecast[self.PredictFrom:])
         elif self.return_mode == True:
-            return self.zeros(Y_forecast[self.PredictFrom:]),ParaDict
-#    @profile
-        
-    def transform(self,Y,muni_nr):
+            return self.zeros(Y_forecast[self.PredictFrom:]), ParaDict
+
+    def transform(self, Y, muni_nr):
         idx = Y.index
         return Y[muni_nr].loc[idx].values + self.RadModel[muni_nr].loc[idx].values
     
-#    @profile    
     @jit
     def split(self, ar, ar1):
         """

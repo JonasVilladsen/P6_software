@@ -67,7 +67,8 @@ class bck_eli_glm:
         i = 0
         while True in np.greater(H.t_sig, self.a) and H.k > 1:
             print(i)
-            rm = X_temp.columns[H.t_sig.argmax()]  #Remove parameter with largest t_sig value
+            #Remove parameter with largest t_sig value
+            rm = X_temp.columns[H.t_sig.argmax()]
             rm_hist.append(rm)
             X_temp = X_temp.drop(rm,axis = 1)
             H = lm(X_temp,self.y)
@@ -82,7 +83,7 @@ class bck_eli_glm:
         hist_df = pd.DataFrame(p_hist).transpose()
         hist_df.rename(columns={hist_df.columns[0]:"Current_model"},\
                                 inplace = True)
-#        hist_df.replace(0,np.nan,inplace = True) #Replace zeros with nan
+
         return H,X_temp.columns, rm_hist, hist_df
     
     def perform_bck_eli_adj_r2(self):

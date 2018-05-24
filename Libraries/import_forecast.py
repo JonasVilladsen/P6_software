@@ -17,8 +17,8 @@ zeropad_hourstring,muni_list_to_grid_list, mk_unique_no_nan_int
 
 class forecast:
     """
-    Structure to hande weatherforecast containing global irridiance, windspeed
-    and wind direction. 
+    Structure to handle weather forecasts containing global irridiance,
+    windspeed and wind direction. 
     
     Input:
         GHI: Global irridicance as pandas dataframe preferably with timeseries
@@ -26,10 +26,13 @@ class forecast:
         WS: Windspeed in same format as GHI
         WD: Wind direction in same format as GHI
     
-    Input can be only one information e.g. only GHI or even no input. 
+    Input can be only one information, e.g. only GHI or even no input. 
     Cannot handle:
-        - Serveal forecast as input. E.g. two different GHI
-        - If the input have different dimentions. E.g. if GHI and WS contain different number of grid points or time information. (well tecnically it can handle it but some of the methods such as install and __str__ wil give untrue information)
+        - Serveal forecasts as input. E.g. two different GHI
+        - If the input have different dimensions, e.g. if GHI and WS contain
+        different number of grid points or time information
+        (well tecnically it can handle it but some of the methods such as
+        install and __str__ wil give untrue information)
     
     
     """
@@ -166,7 +169,10 @@ class forecast_simu:
         fc_time = self._closest_forecast(cur_time)
         day = fc_time.date()
         if  cur_time > self.t_max or cur_time < self.t_min:
-            raise(ValueError("Forecast for selected time is not loaded.\nAllowed timerange is %s to %s\nRemember: If you wanted time is before 03:00 you need to load data from the date before that."\
+            raise(ValueError("Forecast for selected time is not loaded.\n"
+                             "Allowed timerange is %s to %s\nRemember: If your"
+                             "wanted time is before 03:00 you need to load data"
+                             "from the date before that."\
                              %(self.t_min,self.t_max)))
         hourstr = zeropad_hourstring(str(fc_time.hour))
         return(self.data[day][hourstr])
@@ -185,7 +191,9 @@ class forecast_simu:
         Prints out nicely formated string with relevant information about 
         simulation foreast. 
         """
-        s = "Forecast from the dates:\n%s to %s\nCan be called in time timerange %s to %s\nForecast contains:\n" \
+        s = "Forecast from the dates:\n%s to %s. \n" \
+            "Can be called in time timerange %s to %s. \n" \
+            "Forecast contains:\n" \
             %(str(self.days[0]),str(self.days[-1]),str(self.t_min),str(self.t_max))
         fc0 = self.data[self.days[0]]['00'] #first forecast for getting info
         if type(fc0.GHI) == pd.core.frame.DataFrame:
@@ -228,20 +236,33 @@ def import_forecast(t_start,t_end,hours = "all",info = ("GHI",),\
                     grid_list = "all",sub_h_freq = 'all',\
                     sub_D_freq = 'all'):
     """
-    Import serveral forecasts into a continius forecast with information in the speficied hours. Imports into the forecast class. 
+    Import serveral forecasts into a continius forecast with information in
+    the speficied hours. Imports into the forecast class. 
     
     Input:
-         t_start/t_end: Start/end time for your forecast as pandas timestamp. Select this value between 2017/01/01 and 2017/12/31. Only whole dates are allowed, no hours or minutes can be speficied. 
+         t_start/t_end: Start/end time for your forecast as pandas timestamp.
+         Select this value between 2017/01/01 and 2017/12/31. Only whole dates
+         are allowed, no hours or minutes can be speficied. 
          
 
     Optional input:
-        info: Specify which info you want from the forecast. If left returns forecast with GHI information. If you want other information give tuple with string entries discribing the info. Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all", then GHI, WS and WD will be given. 
-        gridnr: Specifiy if you only want forecast from spefific grid numbers. If left it will import data from all grid numbers, else give a list/tuple/numpy array with the numbers.
-        hours: Specify which timeragne of hours you want for each day. Ex: hours = ["04:00","22:00"] for forecasts in that timerange each day. 
-        sub_h_freq: Subsample in hours/minutes. Ex: sub_h_freq = "2H" for samples only every 2 hours
-        sub_D_freq: Subsample in days. Ex: sub_D_freq = "5D" for samples only every 5 days
+        info: Specify which info you want from the forecast. If left returns
+        forecast with GHI information. If you want other information give tuple
+        with string entries describing the info.
+        Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all",
+        then GHI, WS and WD will be given. 
+        gridnr: Specifiy if you only want forecast from spefific grid numbers.
+        If left it will import data from all grid numbers, else give a
+        list/tuple/numpy array with the numbers.
+        hours: Specify which timeragne of hours you want for each day.
+        Example: hours = ["04:00","22:00"] for forecasts in that timerange each day. 
+        sub_h_freq: Subsample in hours/minutes.
+        Example: sub_h_freq = "2H" for samples only every 2 hours.
+        sub_D_freq: Subsample in days.
+        Example: sub_D_freq = "5D" for samples only every 5 days
         
-    Returns: Forecast from speficied timerange as a forecast object. See ?forecast for more info 
+    Returns: Forecast from speficied timerange as a forecast object.
+    See ?forecast for more info 
     
     Examples:
     #Initialise timestamp with arguments specified. 
@@ -341,7 +362,9 @@ def import_forecast(t_start,t_end,hours = "all",info = ("GHI",),\
         raise(ValueError("Select a daterange within 2017"))
     
     if t_start.time() != d_time(0,0) or t_end.time() != d_time(0,0):
-        raise(ValueError("t_start and t_end should be whole dates only i.e hours = 0 and minutes = 0. \nUse the hours argument to get less hours on a day")) 
+        raise(ValueError("t_start and t_end should be whole dates only, \n"
+                         "i.e hours = 0 and minutes = 0. \n"
+                         "Use the hours argument to get less hours on a day")) 
         
     if not isinstance(info,(list,tuple,np.ndarray)) and info != "all":
         raise(TypeError("info argument should be tuple, list or numpy array"))
@@ -364,7 +387,8 @@ def import_forecast(t_start,t_end,hours = "all",info = ("GHI",),\
     grid = sio.loadmat(root + grid_path + ".mat")['forecast_grid'].T[0]
     
     if not set(grid_list).issubset(set(grid)) and grid_list != 'all':
-        raise(ValueError("One or more elements in grid_list is invalid: forecast for that grid point is not known"))
+        raise(ValueError("One or more elements in grid_list is invalid:\n"
+                         "forecast for that grid point is not known"))
     
     #Import more sanity check in neccesary later
     
@@ -387,8 +411,8 @@ def import_forecast(t_start,t_end,hours = "all",info = ("GHI",),\
     rng = choose_days_from_timerange(rng,day_rng) #subsample days
     rng = rng[rng.indexer_between_time(hours[0],hours[1])] #remove unwanted hours
     spd = int(len(rng)/len(day_rng)) #samples pr. day
-    s_day0 =  rng[0].hour #how many samples skibbed at beginning of day. Stupid formula but it works
-    s_day1 = -((24 - rng[-1].hour) - 1)  #how many samples skibbed at end of day. Also kinda stupid
+    s_day0 =  rng[0].hour
+    s_day1 = -((24 - rng[-1].hour) - 1)
     
     #Avoid empty matrix when indexing
     if s_day0 == 0: 
@@ -401,7 +425,8 @@ def import_forecast(t_start,t_end,hours = "all",info = ("GHI",),\
         grid_index = range(len(grid)) #All indicies
         grid_list = grid
     else:
-        grid_index = np.in1d(grid, grid_list).nonzero()[0] #List with indicies of chosen grid numbers
+        grid_index = np.in1d(grid, grid_list).nonzero()[0]
+        #List with indicies of chosen grid numbers
 
     #Create data structures
     if info == "all":
@@ -485,7 +510,9 @@ def import_muni_forecast_simu(t_start,t_end,info = ("GHI",),muni_list = "all",\
         raise(ValueError("Select a daterange within 2017"))
     
     if t_start.time() != d_time(0,0) or t_end.time() != d_time(0,0):
-        raise(ValueError("t_start and t_end should be whole dates only i.e hours = 0 and minutes = 0. \nUse the hours argument to get less hours on a day"))
+        raise(ValueError("t_start and t_end should be whole dates only, \n"
+                         "i.e hours = 0 and minutes = 0. \n"
+                         "Use the hours argument to get less hours on a day"))
 
     if not isinstance(info,(list,tuple,np.ndarray)) and info != "all":
         raise(TypeError("info argument should be tuple, list or numpy array"))
@@ -545,7 +572,8 @@ def import_single_forecast_from_mat(day,info = ("GHI",),grid_list = "all",\
     
     for h in data.keys(): #load from file and write to matrix
         t0 = day + pd.Timedelta(hours = int(h)) #Begin time
-        if day.date() == date(2017, 5, 12) and h == '00': #The day where date is missing - only special case 
+        if day.date() == date(2017, 5, 12) and h == '00':
+            #The day where date is missing - only special case 
             t1 = t0 + pd.Timedelta(hours = 48) #Each forecast is 54 hours
         else:
             t1 = t0 + pd.Timedelta(hours = 54) #Each forecast is 54 hours
@@ -609,21 +637,31 @@ def import_forecast_from_mat(t_start,t_end,info = ("GHI",),gridnr = "all"):
     hour. Imports into the forecast class. 
     
     Input:
-         root: root to main svn folder with "\\" in the end. This will vary depending from where you run your script.
-         t_start/t_end: Start/end time for your forecast as pandas timestamp. Select this value between 2017/01/01 00:00 and 2018/01/01 00:00
-         
+         root: root to main svn folder with "\\" in the end. This will vary
+         depending from where you run your script.
+         t_start/t_end: Start/end time for your forecast as pandas timestamp.
+         Select this value between 2017/01/01 00:00 and 2018/01/01 00:00.
 
     Optional input:
-        info: Specify which info you want from the forecast. If left returns forecast with GHI information. If you want other information give tuple with string entries discribing the info. Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all", then GHI, WS and WD will be given. 
-        gridnr: Specifiy if you only want forecast from spefific grid numbers. OBS: Currently not implemented!
+        info: Specify which info you want from the forecast. If left returns
+        forecast with GHI information. If you want other information give tuple
+        with string entries discribing the info.
+        Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all",
+        then GHI, WS and WD will be given. 
+        gridnr: Specify if you only want forecast from specific grid numbers.
         mode: Se "Modes" below
         
     Modes: forecast have two modes: "newest" and "simulation"
-    "newest" imports forecasts where the newest information is loaded at any given moment. For example it will load the first 6 hours of a forecast and load the next 6 hours of the following forecast and so on.
-    "simulation" imports forecasts where the information available simulates the real time situation. For example the forecast from 12:00 on a day is only available at around 15:00 and will therefore be loded at that time.
+    "newest" imports forecasts where the newest information is loaded at any
+    given moment. For example it will load the first 6 hours of a forecast and
+    load the next 6 hours of the following forecast and so on.
+    "simulation" imports forecasts where the information available simulates
+    the real time situation. For example the forecast from 12:00 on a day is
+    only available at around 15:00 and will therefore be loded at that time.
     Simulation mode is currently not implemented. 
     
-    Returns: Forecast from speficied timerange as a forecast object. See ?forecast for more info 
+    Returns: Forecast from speficied timerange as a forecast object.
+    See ?forecast for more info 
     
     Examples:
     #Initialise timestamp with arguments specified. 
@@ -675,13 +713,17 @@ def import_forecast_from_mat(t_start,t_end,info = ("GHI",),gridnr = "all"):
         raise(ValueError("Select a daterange within 2017"))
     
     if t_start.time() != d_time(0,0) or t_end.time() != d_time(0,0):
-        raise(ValueError("t_start and t_end should be whole dates only i.e hours = 0 and minutes = 0. \nUse the hours argument to get less hours on a day"))
+        raise(ValueError("t_start and t_end should be whole dates only, \n"
+                         "i.e hours = 0 and minutes = 0. \n"
+                         "Use the hours argument to get less hours on a day"))
 
     if not isinstance(info,(list,tuple,np.ndarray)) and info != "all":
         raise(TypeError("info argument should be tuple, list or numpy array"))
         
     if gridnr != "all":
-        raise(NotImplementedError("Currently it is only possible to return forecast for all gridnumbers.\nLeave gridnr = \"all\""))
+        raise(NotImplementedError("Currently it is only possible to return"
+                                  "forecasts for all gridnumbers.\n"
+                                  "Leave gridnr = \"all\""))
 
     #Import more sanity check in neccesary later
     
@@ -746,16 +788,24 @@ def import_single_forecast(root,month,day,fc_time,info = ("GHI",),\
     Imports single forecast from file into the forecast structure.
     
     Input:
-         root: root to main svn folder with "\\" in the end. This will vary depending from where you run your script.
+         root: root to main svn folder with "\\" in the end.
+         This will vary depending from where you run your script.
          month: Month of the year as integer (no zeroes in front).
          day: Day of the month as integer  (no zeroes in front).
          fc_time: Which forecast you want of the four given that day as string.
                   example: "00", 06", "12", "18"
                   
     Optional input:
-        info: Specify which info you want from the forecast. If left returns forecast with GHI information. If you want other information give tuple with string entries discribing the info. Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all", then GHI, WS and WD will be given. 
-        gridnr: Specifiy if you only want forecast from spefific grid numbers. OBS: Currently not implemented!
-        fc_duration: Specify how many hours into the future you want your forecast to be as integer between 0 and 54. Default is 54 hours into the future. If fc_duration = 0, only the first time is included
+        info: Specify which info you want from the forecast. If left returns
+        forecast with GHI information. If you want other information give tuple
+        with string entries describing the info.
+        Example: info = ("GHI","WS","WD"), ("WS",) and so on. If info = "all",
+        then GHI, WS and WD will be given. 
+        gridnr: Specifiy if you only want forecast from spefific grid numbers.
+        OBS: Currently not implemented!
+        fc_duration: Specify how many hours into the future you want your
+        forecast to be as integer between 0 and 54. Default is 54 hours into
+        the future. If fc_duration = 0, only the first time is included.
     
     Returns: Forecast from speficied day as a forecast object. See ?forecast
              for more info 
@@ -783,7 +833,9 @@ def import_single_forecast(root,month,day,fc_time,info = ("GHI",),\
     >>> Forecast covers 354 grid points
     """
     if gridnr != "all":
-        raise(NotImplementedError("Currently it is only possible to return forecast for all gridnumbers.\nLeave gridnr = \"all\""))
+        raise(NotImplementedError("Currently it is only possible to return \n"
+                                  "forecast for all gridnumbers.\n"
+                                  "Leave gridnr = \"all\""))
     if fc_duration < 1 or fc_duration > 54:
         raise(ValueError("Let fc_duration be in the range [1,54]"))
         

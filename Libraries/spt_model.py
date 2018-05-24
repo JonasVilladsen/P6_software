@@ -242,9 +242,9 @@ class spt_mod:
         See ?spp_fit_scalar for more info
         """
         fit_rng = pd.date_range(t_start,t_end,freq = update_every)
-        if not isinstance(start_hour,type(None)):
+        if not isinstance(start_hour, type(None)):
             fit_rng += pd.Timedelta(hours = start_hour.hour,\
-                                    minutes = start_hour.minute) #add 12 hours if needed
+                                    minutes = start_hour.minute)
         #remove hours where sun has set from range
         hour_fit = self._hour_fit(t_start.date(),t_end.date())
         fit_rng = fit_rng[fit_rng.indexer_between_time(hour_fit[0],hour_fit[1])]
@@ -367,8 +367,9 @@ class spt_mod:
                 buffer = 15
                 h0_h = hours[0].hour; h0_min = hours[0].minute
                 h1_h = hours[1].hour; h1_min = hours[1].minute
-                h0 = pd.Timedelta(hours = h0_h, minutes  = h0_min - buffer) #add a small buffer
-                h1 = pd.Timedelta(hours = h1_h, minutes  = h1_min + buffer) #add a small buffer
+                #add small buffers
+                h0 = pd.Timedelta(hours = h0_h, minutes  = h0_min - buffer)
+                h1 = pd.Timedelta(hours = h1_h, minutes  = h1_min + buffer)
                 h0 = d_time(hour = h0.components.hours,
                             minute =  h0.components.minutes)
                 h1 = d_time(hour = h1.components.hours,

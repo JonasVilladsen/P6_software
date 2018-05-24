@@ -21,7 +21,9 @@ def return_to_root(n_max = 10): # Return to the root directory in svn from a sub
         else:
             break
     if root[-3:] != "svn":
-        raise(OSError("\"svn\" not found using recursion.\nCheck if script is in a subfolder under \"svn\".\nIf this is the case set n_max higher."))
+        raise(OSError("\"svn\" not found using recursion.\n"
+                      "Check if script is in a subfolder under \"svn\".\n"
+                      "If this is the case set n_max higher."))
     root += "/"
     return root
 

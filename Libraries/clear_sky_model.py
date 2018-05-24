@@ -8,18 +8,17 @@ Created on Thu Feb 15 14:46:53 2018
 import pandas as pd
 from pvlib import clearsky
 from pvlib.location import Location
-import numpy as np
-from utilities import return_to_root
 from import_SPP import import_SPP as import_SPP #Import_SPP 
 from muni_class import create_muni_class_from_SPP
- 
 
 class cs_model:
     """
-    Object containing the model for computing the predicted clearsky effect for municipilaties. 
+    Object containing the model for computing the predicted clearsky effect for
+    municipilaties. 
     
     Can easily be initialies using the "get_cs_class" function.
-    Once initialised it can be called in specific timerange to get the clear sky model for the municipilaites intilalies for.
+    Once initialised it can be called in specific timerange to get
+    the clear sky model for the municipilaites initialized for.
      
     Input:
         muni_obj: Municipilaty object from the muni class in desired daterange.
@@ -32,18 +31,22 @@ class cs_model:
         self.hours = muni_obj.hours
         loc_temp = {}
         for nr in muni_obj.muninr: #import location object for each minicpilaty
-            loc_temp[nr]  = Location(muni_obj.coor.loc[nr][0],muni_obj.coor.loc[nr][1],\
-                                      timezone = "Europe/Copenhagen",altitude = 10,\
-                                      name = "Denmark")
+            loc_temp[nr] = Location(muni_obj.coor.loc[nr][0],
+                                    muni_obj.coor.loc[nr][1],
+                                    timezone = "Europe/Copenhagen",
+                                    altitude = 10,
+                                    name = "Denmark")
         self.location = loc_temp
             
    
     def __call__(self,t_start,t_end,res = "15min",norm = False):
         """
-        Calculates clear sky model in timerange with given resulution for all municipilaties in the instance.
+        Calculates clear sky model in timerange with given resulution for all
+        municipilaties in the instance.
         
         Input:
-            t_start,t_end: pandas timestamp within time where installed effect have been loaded
+            t_start,t_end: pandas timestamp within time where installed
+            effect have been loaded
             res: Is resulution of the model. 15min resultion is defauls
             norm: If norm = True the model is not scaled by installed effect. 
         
@@ -51,17 +54,20 @@ class cs_model:
             Clear sky model values as pandas dataframe
         """
         if t_start < self.instp.index[0] or  t_end > self.instp.index[-1]:
-            raise(ValueError("Let [t_start,t_end] be in the timerange:\n%s to %s\nwhere installed effect is loaded." %(str(self.instp.index[0]),str(self.instp.index[-1]))))
+            raise(ValueError("Let [t_start,t_end] be in the timerange:\n%s to"
+                             "%s\nwhere installed effect is loaded."
+                             %(str(self.instp.index[0]),
+                               str(self.instp.index[-1]))))
         #Creates location object in the correct time zone in an altitude of 10 meters
         t_end = t_end + pd.Timedelta(hours = 23,minutes = 45) 
         times = pd.DatetimeIndex(start=t_start, end=t_end, \
                                  freq=res, tz='UTC') 
         if self.hours != "all":
-            times = times[times.indexer_between_time(self.hours[0],self.hours[1])]  
+            times = times[times.indexer_between_time(self.hours[0],
+                                                     self.hours[1])]  
         cs_df = pd.DataFrame(index = times, columns = self.coordinates.index)
         for nr in self.coordinates.index: #Get clear sky model for each muni
-            cs = self.location[nr].get_clearsky(times,model = "haurwitz")
-    
+            cs = self.location[nr].get_clearsky(times, model = "haurwitz")
 
             cs *= 15*60*(10**(-6)) #Get in MWh/15minutes
             if not norm: #Scale by installed effect unless normalised model is wanted
@@ -71,12 +77,16 @@ class cs_model:
                     #Installed effect squared
                     cs.loc[t:t+pd.Timedelta(hours = 23,minutes = 45)] *= instP
             cs_df[nr] = cs*self.tobis_magic_constant
-        #Incomment later
-#        cs = self.parameters[0]*cs + self.parameters[1]*((cs**2)/municipilaty_info.instP)
         return cs_df
     
     def __str__(self):
-        s = "Clear sky model object for %d minicilaties in the day range\n%s to %s\nin the hours\n%s to %s.\nThe object can be called to get the cs model values in this timerange." %(len(self.coordinates),self.instp.index[0].date(),self.instp.index[-1].date(),str(self.hours[0]),str(self.hours[1]))
+        s = "Clear sky model object for %d minicilaties in the day range\n%s" \
+            "to %s\nin the hours\n%s to %s.\nThe object can be called to get" \
+            "the cs model values in this timerange." %(len(self.coordinates),
+                                                       self.instp.index[0].date(),
+                                                       self.instp.index[-1].date(),
+                                                       str(self.hours[0]),
+                                                       str(self.hours[1]))
         return(s)
         
 def get_cs_class(day_start,day_end,hours = 'all', muni_list = 'all',n_max = 10):
@@ -84,10 +94,16 @@ def get_cs_class(day_start,day_end,hours = 'all', muni_list = 'all',n_max = 10):
     Import a cs_model class on specific days, hours and municiplaties.
     
     Input:
-        day_start/day_end: pandas timestamp as a whole day (hours = minutes = seconds = 00)
-        hours: Spefify which hours you want the cs model to when calling it. Example: hours = ("12:00","18:45") will give you the SPP in that timerange for the specified days. Should be a list/tuple wiht elements of type "hh,mm" as strings
-        muni_list: Speficy which municipilaties you want to import as list/tuple/numpy array
-        n_max: parameter for how many folders to go back in when looking for the svn folder
+        day_start/day_end: pandas timestamp as a whole day
+        (hours = minutes = seconds = 00)
+        hours: Spefify which hours you want the cs model to when calling it.
+        Example: hours = ("12:00","18:45") will give you the SPP in
+        that timerange for the specified days. Should be a list/tuple with
+        elements of type "hh,mm" as strings
+        muni_list: Speficy which municipilaties you want to import as
+        list/tuple/numpy array
+        n_max: parameter for how many folders to go back
+        when looking for the svn folder
     
     Returns:
         A cs_model object. Se ?cs_model for more info
@@ -123,7 +139,8 @@ def clearsky_model_raw(muni_obj,muninr,t_start,t_end, res = "15min",norm = False
     times = pd.DatetimeIndex(start=t_start, end=t_end, \
                              freq=res, tz=Loc_obj.tz) #winter 1st jan
     hours = (muni_obj.timerange[0].time(),muni_obj.timerange[-1].time())
-    times = times[times.indexer_between_time(hours[0],hours[1])] #Timerange with only the dates
+    times = times[times.indexer_between_time(hours[0],hours[1])]
+    #Timerange with only the dates
     cs = Loc_obj.get_clearsky(times,model = "haurwitz")
     cs *= 15*60*10**(-6) #
     tobis_magic_constant = 1/3. #maybe cange t0 3.5
@@ -133,4 +150,3 @@ def clearsky_model_raw(muni_obj,muninr,t_start,t_end, res = "15min",norm = False
             instP = muni_obj.instp[muninr].loc[t]
             cs.loc[t:t+pd.Timedelta(hours = 23,minutes = 45)] *= instP
     return cs
-
